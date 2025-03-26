@@ -11,6 +11,54 @@ openai.api_key = os.getenv("OPENAI_API_KEY")
 st.set_page_config(page_title="리뷰 분석기", layout="wide")
 st.title("🔍 리뷰 기반 욕구 분석기")
 
+# 모바일 최적화 스타일 추가
+st.markdown("""
+<style>
+/* Streamlit 기본 메뉴 숨기기 */
+#MainMenu, footer, header {
+    visibility: hidden;
+}
+
+/* 텍스트 입력 박스 크기 및 폰트 사이즈 확대 (모바일 터치 친화적) */
+textarea {
+    font-size: 16px !important;
+    min-height: 150px !important;
+}
+
+/* 숫자 입력(input) 폰트 크기 증가 */
+input[type="number"] {
+    font-size: 16px !important;
+    padding: 10px !important;
+}
+
+/* 버튼 크기 및 디자인 확대 (터치 용이성) */
+div.stButton > button {
+    font-size: 16px !important;
+    padding: 15px !important;
+    width: 100%;
+}
+
+/* 제목과 부제목 폰트 최적화 */
+h1 {
+    font-size: 24px !important;
+}
+h3 {
+    font-size: 18px !important;
+}
+
+/* 가로 패딩 줄이고 화면 공간 최대화 */
+.block-container {
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+}
+
+/* 경고, 안내 메시지 박스 스타일 개선 (가독성 높임) */
+div[data-testid="stAlert"] {
+    font-size: 15px !important;
+}
+</style>
+""", unsafe_allow_html=True)
+
 # 비밀번호 설정
 ACCESS_PASSWORD = "need987!@"  # 원하는 비밀번호 입력
 
