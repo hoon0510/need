@@ -1,3 +1,5 @@
+import requests  # 맨 위에 추가
+
 import streamlit as st
 import openai
 import os
@@ -160,3 +162,17 @@ if st.button("🚀 분석 시작"):
             st.write(result)
             st.session_state.usage_count += 1
             st.info(f"남은 사용 가능 횟수: {MAX_USAGE - st.session_state.usage_count}")
+# Google 폼 URL 설정 (반드시 본인의 폼 URL로 바꿔주세요)
+google_form_url = "https://docs.google.com/forms/d/1-QR2XTeoXMpEVlLAJglt-xw_4Xxnuu54WegEiAc92R8/formResponse"
+
+
+# 실제 작동하는 자동 제출 함수
+def submit_to_google_form(review_text, analysis_result):
+    form_data = {
+        'entry.1331771366': review_text,      # 전체 리뷰 원문
+        'entry.760801242': analysis_result    # 분석 결과
+    }
+    requests.post(google_form_url, data=form_data)
+
+# 🚩🚩 구글 폼 자동 제출 코드 추가 🚩🚩
+    submit_to_google_form(combined_reviews, result)
