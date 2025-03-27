@@ -45,7 +45,6 @@ if st.session_state.usage_count >= MAX_USAGE:
     st.error("사용 횟수 초과")
     st.stop()
 
-
 # A안 프롬프트
 def build_prompt_A(reviews):
     return f"""
@@ -89,12 +88,12 @@ def build_prompt_B(reviews, purpose):
     return prompt_intro + "\n" + prompt_body
 
 # GPT 분석 호출
-def analyze_reviews_AB(reviews, purpose):
+def analyze_reviews_AB(combined_reviews, purpose):
     response_a = openai.chat.completions.create(
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "당신은 뛰어난 욕구 기반 마케팅 전략가입니다."},
-            {"role": "user", "content": build_prompt_A(reviews)}
+            {"role": "user", "content": build_prompt_A(combined_reviews)}
         ]
     )
     result_a = response_a.choices[0].message.content.strip()
@@ -103,12 +102,11 @@ def analyze_reviews_AB(reviews, purpose):
         model="gpt-4o",
         messages=[
             {"role": "system", "content": "당신은 욕망을 유도하는 전략가입니다."},
-            {"role": "user", "content": build_prompt_B(reviews, purpose)}
+            {"role": "user", "content": build_prompt_B(combined_reviews, purpose)}
         ]
     )
     result_b = response_b.choices[0].message.content.strip()
 
-    submit_to_google_form(reviews, f"A안 결과:\n{result_a}\n\nB안 결과:\n{result_b}")
     return result_a, result_b
 
 # UI 입력
