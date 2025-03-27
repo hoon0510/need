@@ -45,17 +45,6 @@ if st.session_state.usage_count >= MAX_USAGE:
     st.error("사용 횟수 초과")
     st.stop()
 
-# 구글폼 URL
-google_form_url = "https://docs.google.com/forms/d/1-QR2XTeoXMpEVlLAJglt-xw_4Xxnuu54WegEiAc92R8/formResponse"
-def submit_to_google_form(review_text, analysis_result):
-    form_data = {
-        'entry.1331771366': review_text,
-        'entry.760801242': analysis_result
-    }
-    try:
-        requests.post(google_form_url, data=form_data)
-    except Exception as e:
-        print(f"Google Form 제출 실패: {e}")
 
 # A안 프롬프트
 def build_prompt_A(reviews):
