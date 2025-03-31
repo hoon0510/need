@@ -1,9 +1,13 @@
 import streamlit as st
 import openai
-from config import OPENAI_API_KEY
+##from config import OPENAI_API_KEY
 
 # API 키 설정
-openai.api_key = OPENAI_API_KEY
+##openai.api_key = OPENAI_API_KEY
+import streamlit as st
+import openai
+
+openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 # 페이지 설정
 st.set_page_config(page_title="리뷰 기반 욕구 분석기", layout="wide")
