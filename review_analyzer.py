@@ -97,7 +97,7 @@ with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
     """)
 
 # 탭 구분
-탭 = st.radio("분석 목적 선택", ["기존 시장 분석", "최초진입시장 욕구 분석"])
+탭 = st.radio("분석 목적 선택", ["기존 시장 분석", "기존 시장이 없는 경우"])
 
 if 탭 == "기존 시장 분석":
     st.markdown("### 리뷰 기반 분석")
@@ -105,7 +105,20 @@ if 탭 == "기존 시장 분석":
     with col1:
         review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
     with col2:
-        analysis_goal = st.text_input("이 분석 결과를 어디에 활용하시겠습니까?", value="브랜드 이미지 개선, 신규 브랜드 런칭, 퍼포먼스 마케팅 전략 등")
+        analysis_goal = st.selectbox(
+            "이 분석 결과를 어디에 활용하시겠습니까?",
+            [
+                "브랜드 이미지 개선",
+                "신규 브랜드 런칭",
+                "신제품 포지셔닝",
+                "경쟁사 분석",
+                "퍼포먼스 마케팅 전략",
+                "리텐션 전략 수립",
+                "광고 카피 개발",
+                "기타"
+            ],
+            index=0
+        )
 
     st.markdown("---")
     st.markdown("### 리뷰 입력")
@@ -148,7 +161,7 @@ if 탭 == "기존 시장 분석":
             st.subheader("🧠 전문가용 마케팅 기획안")
             st.markdown(result_4)
 
-elif 탭 == "최초진입시장 욕구 분석":
+elif 탭 == "기존 시장이 없는 경우":
     st.markdown("### 신시장 진입 아이템 분석")
     with st.form("new_market_form"):
         col1, col2 = st.columns(2)
