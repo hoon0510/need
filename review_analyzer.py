@@ -86,8 +86,8 @@ def analyze_reviews(prompt):
 
 # ============================ UI 영역 ============================
 
-st.set_page_config(page_title="리뷰 기반 욕구 분석기", layout="wide")
-st.title("🔍 리뷰 기반 욕구 분석기")
+st.set_page_config(page_title="Desire Mapping Studio", layout="wide")
+st.title("🔍 Desire Mapping Studio")
 
 with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
     st.markdown("""
@@ -104,7 +104,7 @@ with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
 탭 = st.radio("분석 목적 선택", ["기존 시장 분석", "기존 시장이 없는 경우"])
 
 if 탭 == "기존 시장 분석":
-    st.markdown("### 리뷰 기반 분석")
+    st.markdown("### 리뷰, 댓글, 인터뷰 등 소비자 반응을 기반으로 분석합니다")
     col1, col2 = st.columns(2)
     with col1:
         review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
