@@ -1,5 +1,6 @@
 import streamlit as st
 import openai
+import graphviz
 
 # 🔐 API Key 설정 (배포용)
 openai.api_key = st.secrets["OPENAI_API_KEY"]
@@ -33,7 +34,11 @@ def build_deep_prompt(reviews, goal):
 12. 마케팅 실행 전략 상세  
 13. 콘텐츠 포맷 / 톤 / 콘셉트 / 채널 제안  
 14. 성과 예측 및 KPI  
-15. [보조] 세분화된 욕구 사전 기반 분석 (매슬로우보다 정교한 구조 적용)
+15. [보조] 세분화된 욕구 사전 기반 분석 (매슬로우보다 정교한 구조 적용)  
+16. 심리적 방아쇠 도출  
+17. 무의식적 결정 지점 예측  
+18. 공감 시나리오 예측  
+19. 상세페이지 또는 광고 콘텐츠 제작을 위한 핵심 표현 및 배치 전략 제안
 """
 
 def build_plan_prompt(reviews, goal):
@@ -96,7 +101,6 @@ with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
     이 분석기는 인간의 욕구를 매슬로 이론보다 더 세분화하여 감정, 기저욕구, 반사욕구, 저항요인까지 구조적으로 분석합니다.
     """)
 
-# 탭 구분
 탭 = st.radio("분석 목적 선택", ["기존 시장 분석", "기존 시장이 없는 경우"])
 
 if 탭 == "기존 시장 분석":
@@ -105,20 +109,10 @@ if 탭 == "기존 시장 분석":
     with col1:
         review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
     with col2:
-        analysis_goal = st.selectbox(
-            "이 분석 결과를 어디에 활용하시겠습니까?",
-            [
-                "브랜드 이미지 개선",
-                "신규 브랜드 런칭",
-                "신제품 포지셔닝",
-                "경쟁사 분석",
-                "퍼포먼스 마케팅 전략",
-                "리텐션 전략 수립",
-                "광고 카피 개발",
-                "기타"
-            ],
-            index=0
-        )
+        analysis_goal = st.selectbox("이 분석 결과를 어디에 활용하시겠습니까?", [
+            "브랜드 이미지 개선", "신규 브랜드 런칭", "퍼포먼스 마케팅 전략",
+            "경쟁사 분석", "신제품 전략 기획", "상세페이지 제작", "광고 컨텐츠 제작"
+        ])
 
     st.markdown("---")
     st.markdown("### 리뷰 입력")
