@@ -1,4 +1,6 @@
 import streamlit as st
+st.set_page_config(page_title="Desire Mapping Studio", layout="wide", page_icon="💡")
+
 import openai
 import graphviz
 
