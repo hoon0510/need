@@ -19,17 +19,40 @@ with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
     4. **파괴적 자극 메시지 활용**
 
     이 분석기는 인간의 욕구를 매슬로 이론보다 더 세분화하여 감정, 기저욕구, 반사욕구, 저항요인까지 구조적으로 분석합니다.
-    분석 목적에 따라 브랜드, 경쟁사, 시장, 업종, 신제품 등 다양한 방향의 인사이트를 제공합니다.
     """)
 
-# 리뷰 개수
-st.markdown("### 리뷰 개수 선택")
-review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
-st.markdown("---")
+# 입력 영역 분할
+col1, col2 = st.columns(2)
 
-# 분석 목적
-st.markdown("### 분석 목적 입력")
-analysis_goal = st.text_input("이 분석 결과를 어디에 활용하시겠습니까?", value="브랜드 이미지 개선, 신규 브랜드 런칭, 퍼포먼스 마케팅 전략 등 자유롭게 목적을 입력해주세요")
+with col1:
+    st.markdown("### 리뷰 개수 선택")
+    review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
+
+with col2:
+    st.markdown("### 분석 목적 선택")
+    analysis_goal_type = st.selectbox("분석 목적을 선택하세요", [
+        "브랜드 이미지 개선",
+        "신제품 전략 기획",
+        "경쟁사 분석",
+        "시장/업종 인사이트",
+        "퍼포먼스 마케팅 최적화",
+        "리텐션 전략",
+        "퍼스널 브랜딩 전략",
+        "고객 불만 원인 분석",
+        "콘텐츠 기획용 인사이트 확보",
+        "리뷰 기반 카피라이팅 소재 추출",
+        "광고 메시지 테스트",
+        "커뮤니티/댓글 분석",
+        "이벤트/캠페인 반응 분석",
+        "런칭 전 제품 컨셉 검증",
+        "기타 (직접 입력)"
+    ])
+
+    if analysis_goal_type == "기타 (직접 입력)":
+        analysis_goal = st.text_input("직접 입력해주세요", value="")
+    else:
+        analysis_goal = analysis_goal_type
+
 st.markdown("---")
 
 # 리뷰 입력
@@ -45,12 +68,14 @@ for i in range(rows):
             if review.strip():
                 review_inputs.append(review.strip())
 
-# 분석 버튼
 st.markdown("---")
+
+# 분석 버튼
 analyze_now = st.button("🚀 분석 시작", key="analyze_button")
 st.markdown("---")
 
-# 프롬프트 (15개 항목 유지 + 분석 목적 기반)
+# 프롬프트 정의
+
 def build_deep_prompt(reviews, goal):
     return f"""
 당신은 고객의 감정과 무의식적 욕구, 그리고 감정 유도형 행동 메커니즘을 정확히 해석해 전환 전략을 수립하는 최고의 마케팅 전략가이자 직관적이며 직설적인 언어를 다루는 카피라이터입니다. 밈, 파괴적 언어, 자극적인 카피까지 전략적으로 사용하는 크리에이티브 디렉터입니다.
@@ -81,8 +106,6 @@ def build_deep_prompt(reviews, goal):
 15. [보조] 세분화된 욕구 사전 기반 분석 (매슬로우보다 정교한 구조 적용)
 """
 
-# 마케팅 전략 기획서용
-
 def build_plan_prompt(reviews, goal):
     return f"""
 당신은 욕구 기반 분석을 통해 실제 마케팅 전략을 기획하는 전문가입니다. 다음 리뷰를 바탕으로 전략 문서 항목별로 마크다운 형식으로 작성하세요. 설명 없이 항목 제목과 내용만 출력하세요.
@@ -105,7 +128,6 @@ def build_plan_prompt(reviews, goal):
 10. KPI 및 성과 계획
 """
 
-# 한 문장 요약용 프롬프트
 def build_killer_summary(reviews, goal):
     return f"""
 다음 리뷰를 분석하고, 고객의 감정과 욕망을 동시에 자극할 수 있는 한 줄 카피를 작성하세요. 이 문장은 짧고 파괴적이어야 하며, 행동을 유도해야 합니다.
@@ -117,7 +139,6 @@ def build_killer_summary(reviews, goal):
 형식: [한 문장 요약]
 """
 
-# GPT 호출 함수
 def analyze_reviews(prompt):
     response = openai.chat.completions.create(
         model="gpt-4o",
@@ -145,7 +166,6 @@ if analyze_now:
 
         info_placeholder.empty()
 
-        # 출력
         st.markdown("## ✅ 분석 결과")
         st.markdown("### 🔥 한 문장 요약")
         st.markdown(f"**{result_summary}**")
