@@ -1,128 +1,42 @@
-import requests
 import streamlit as st
 import openai
-import os
-from dotenv import load_dotenv
+from config import OPENAI_API_KEY
 
-# 환경 변수 로드
-load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# API 키 설정
+openai.api_key = OPENAI_API_KEY
 
-# 기본 UI 설정
-st.set_page_config(page_title="리뷰 분석기", layout="wide")
-st.title("🔍 리뷰 기반 욕구 분석기 (A/B + 목적 분기 방식)")
+# 페이지 설정
+st.set_page_config(page_title="리뷰 기반 욕구 분석기", layout="wide")
+st.title("🔍 리뷰 기반 욕구 분석기")
 
-# 스타일
-st.markdown("""
-<style>
-#MainMenu, footer, header { visibility: hidden; }
-textarea { font-size: 16px !important; min-height: 150px !important; }
-input[type="number"] { font-size: 16px !important; padding: 10px !important; }
-div.stButton > button { font-size: 16px !important; padding: 15px !important; width: 100%; }
-h1 { font-size: 24px !important; }
-.block-container { padding-left: 10px !important; padding-right: 10px !important; }
-</style>
-""", unsafe_allow_html=True)
+# 개념 설명
+with st.expander("📘 욕구 기반 퍼널 파괴 마케팅 전략 개요"):
+    st.markdown("""
+    ### 개념 설명: 욕구 기반 퍼널 파괴 마케팅 전략
+    욕구 기반 퍼널 파괴 마케팅은 전통적인 AIDA(인지→관심→욕망→행동) 퍼널을 넘어, 고객의 감정과 무의식적 욕구를 즉각 자극해 의사결정 단계를 단축시키는 전략입니다. 핵심은:
+    1. **감정 트리거 발굴**
+    2. **욕구 전환**
+    3. **즉각적 행동 유도**
+    4. **파괴적 자극 메시지 활용**
 
-# 비밀번호
-ACCESS_PASSWORD = "need987!@"
-if "authenticated" not in st.session_state:
-    st.session_state.authenticated = False
-if not st.session_state.authenticated:
-    pw = st.text_input("비밀번호 입력", type="password")
-    if pw == ACCESS_PASSWORD:
-        st.session_state.authenticated = True
-        st.rerun()
-    elif pw:
-        st.error("잘못된 비밀번호입니다.")
-    st.stop()
+    이 분석기는 인간의 욕구를 매슬로 이론보다 더 세분화하여 감정, 기저욕구, 반사욕구, 저항요인까지 구조적으로 분석합니다.
+    """)
 
-# 사용 횟수 제한
-MAX_USAGE = 10
-if 'usage_count' not in st.session_state:
-    st.session_state.usage_count = 0
-if st.session_state.usage_count >= MAX_USAGE:
-    st.error("사용 횟수 초과")
-    st.stop()
-
-# A안 프롬프트
-def build_prompt_A(reviews):
-    return f"""
-[고객 리뷰 원문]
-{reviews}
-
----
-
-1. 가설 설정
-2. 감정 진입점
-3. 욕구 도출 (매슬로우 기반)
-4. 공통된 핵심 욕구 요약
-5. 전략적 활용 포인트
-6. 카피 3종 ([공감 - 유혹 - 충족])
-"""
-
-# B안 프롬프트 (목적 분기 포함)
-def build_prompt_B(reviews, purpose):
-    prompt_intro = "당신은 세계 최고의 사기꾼이자 심리학에 기반한 욕구 분석 전문 마케터입니다. 고객의 무의식적 감정과 욕구를 분석해, 행동을 유도하는 전략가입니다. 아래의 리뷰를 바탕으로 목적에 따라 분석 전략을 달리 적용하세요."
-
-    if purpose == "신규유입":
-        scenario = "이 리뷰는 아직 플랫폼을 사용하지 않은 고객의 시선에서, 흥미와 기대를 자하는 분석이 필요합니다."
-    else:
-        scenario = "이 리뷰는 기존 고객 또는 이탈 위기 고객의 시선에서, 신뢰 회복과 만족 증대 전략이 필요합니다."
-
-    prompt_body = f"""
-[분석 목적: {purpose}]
-{scenario}
-
-[고객 리뷰 원문]
-{reviews}
-
-1. 숨겨진 결핍 가설
-2. 감정 유발 트리거
-3. 기저 욕구 분해 (매슬로우 기반)
-4. 투사된 욕망 시나리오
-5. 심리 전환 공식 (감정 → 욕구 → 욕망 → 자기 정당화 → 전환)
-6. 마케팅 자극 포인트
-7. 감정 유도형 카피 3종 ([공감 → 욕구 자극 → 자기 정당화])
-"""
-    return prompt_intro + "\n" + prompt_body
-
-# GPT 분석 호출
-def analyze_reviews_AB(combined_reviews, purpose):
-    response_a = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "당신은 뛰어난 욕구 기반 마케팅 전략가입니다."},
-            {"role": "user", "content": build_prompt_A(combined_reviews)}
-        ]
-    )
-    result_a = response_a.choices[0].message.content.strip()
-
-    response_b = openai.chat.completions.create(
-        model="gpt-4o",
-        messages=[
-            {"role": "system", "content": "당신은 욕망을 유도하는 전략가입니다."},
-            {"role": "user", "content": build_prompt_B(combined_reviews, purpose)}
-        ]
-    )
-    result_b = response_b.choices[0].message.content.strip()
-
-    return result_a, result_b
-
-# UI 입력
-col1, col2, col3 = st.columns([1, 2, 3])
-with col1:
-    review_count = st.number_input("리뷰 수", min_value=1, max_value=100, value=6, step=1)
-with col2:
-    goal = st.selectbox("분석 목적", ["신규유입", "리텐션"])
-with col3:
-    if st.button("🚀 분석 시작"):
-        st.session_state.start_analysis = True
-
+# 리뷰 개수
+st.markdown("### 리뷰 개수 선택")
+review_count = st.number_input("입력할 리뷰 개수", min_value=1, max_value=200, value=6, step=1)
 st.markdown("---")
 
+# 분석 목적
+st.markdown("### 분석 목적 입력")
+analysis_goal = st.text_input("이 분석 결과를 어디에 활용하시겠습니까?", value="브랜드 이미지 개선, 신규 브랜드 런칭, 퍼포먼스 마케팅 전략 등 자유롭게 목적을 입력해주세요")
+st.markdown("---")
+
+# 리뷰 입력
+st.markdown("### 리뷰 입력")
 review_inputs = []
-for i in range(review_count):
+rows = (review_count + 1) // 2
+for i in range(rows):
     cols = st.columns(2)
     for j in range(2):
         index = i * 2 + j
@@ -131,23 +45,118 @@ for i in range(review_count):
             if review.strip():
                 review_inputs.append(review.strip())
 
-if st.button("🚀 분석 실행"):
+# 분석 버튼
+st.markdown("---")
+analyze_now = st.button("🚀 분석 시작", key="analyze_button")
+st.markdown("---")
+
+# 프롬프트 (15개 항목 유지)
+def build_deep_prompt(reviews, goal):
+    return f"""
+당신은 고객의 감정과 무의식적 욕구, 그리고 감정 유도형 행동 메커니즘을 정확히 해석해 전환 전략을 수립하는 최고의 마케팅 전략가이자 직관적이며 직설적인 언어를 다루는 카피라이터입니다. 밈, 파괴적 언어, 자극적인 카피까지 전략적으로 사용하는 크리에이티브 디렉터입니다.
+
+분석 목적: {goal}
+
+고객 리뷰:
+{reviews}
+
+---
+
+다음 항목을 빠짐없이, 간결하고 명확하게 작성하세요. 각 항목은 실무자가 이해할 수 있도록 **구조화된 언어**로 정리하세요:
+
+1. 감정 기반 주요 단어 분석  
+2. 감정 트리거 요인  
+3. 감정 → 욕구 흐름 분석  
+4. 심리 전환 공식  
+5. 정당화 내러티브 구조  
+6. 반사 욕구 분석  
+7. 욕구 간 충돌 시나리오  
+8. 욕구 저항 요인  
+9. 실행 방해 요인 + 제거 전략  
+10. 핵심 욕구 기반 카피 제안 (자극적 언어 포함)  
+11. 킬러 키워드 추천 (한 단어 위주)  
+12. 마케팅 실행 전략 상세  
+13. 콘텐츠 포맷 / 톤 / 콘셉트 / 채널 제안  
+14. 성과 예측 및 KPI  
+15. [보조] 세분화된 욕구 사전 기반 분석 (매슬로우보다 정교한 구조 적용)
+"""
+
+# 마케팅 전략 기획서용
+def build_plan_prompt(reviews, goal):
+    return f"""
+당신은 욕구 기반 분석을 통해 실제 마케팅 전략을 기획하는 전문가입니다. 다음 리뷰를 바탕으로 전략 문서 항목별로 마크다운 형식으로 작성하세요. 설명 없이 항목 제목과 내용만 출력하세요.
+
+분석 목적: {goal}
+리뷰 데이터:
+{reviews}
+
+---
+
+1. 시장 및 소비자 인사이트
+2. 타깃 페르소나 정의
+3. 핵심 니즈 및 욕구
+4. 제품/서비스 포지셔닝
+5. 브랜드 메시지 구조
+6. 전환 유도 흐름
+7. 카피 제안 (유입/전환/충성)
+8. 콘텐츠 전략
+9. 미디어 믹스/예산 배분
+10. KPI 및 성과 계획
+"""
+
+# 한 문장 요약용 프롬프트
+def build_killer_summary(reviews, goal):
+    return f"""
+다음 리뷰를 분석하고, 고객의 감정과 욕망을 동시에 자극할 수 있는 한 줄 카피를 작성하세요. 이 문장은 짧고 파괴적이어야 하며, 행동을 유도해야 합니다.
+
+분석 목적: {goal}
+리뷰 데이터:
+{reviews}
+
+형식: [한 문장 요약]
+"""
+
+# GPT 호출 함수
+def analyze_reviews(prompt):
+    response = openai.chat.completions.create(
+        model="gpt-4o",
+        messages=[
+            {"role": "system", "content": "당신은 감정과 욕망을 분석하는 최고의 마케팅 전략가입니다."},
+            {"role": "user", "content": prompt}
+        ]
+    )
+    return response.choices[0].message.content.strip()
+
+# 분석 실행
+if analyze_now:
     if not review_inputs:
-        st.warning("리뷰를 1개 이상 입력해주세요.")
+        st.warning("리뷰를 최소 1개 이상 입력해주세요.")
     else:
+        info_placeholder = st.empty()
+        info_placeholder.warning("🔄 잠시만 기다려주세요. 분석이 진행 중입니다.")
         with st.spinner("분석 중..."):
-            combined_reviews = "\n\n".join(review_inputs)
-            result_a, result_b = analyze_reviews_AB(combined_reviews, goal)
+            combined_reviews = "\n\n".join([
+                r if len(r.split('.')) <= 5 else '.'.join(r.split('.')[:5]) + "..." for r in review_inputs
+            ])
+            result_summary = analyze_reviews(build_killer_summary(combined_reviews, analysis_goal))
+            result_3 = analyze_reviews(build_deep_prompt(combined_reviews, analysis_goal))
+            result_4 = analyze_reviews(build_plan_prompt(combined_reviews, analysis_goal))
 
-            st.markdown("## ✅ 분석 결과 비교 (A vs B)")
-            tab1, tab2 = st.tabs(["🅰️ 기본 분석", "🅱️ 욕망 유도 분석"])
+        info_placeholder.empty()
 
-            with tab1:
-                st.markdown("### 🅰️ A안 결과")
-                st.write(result_a)
-            with tab2:
-                st.markdown(f"### 🅱️ B안 결과 ({goal} 모드)")
-                st.write(result_b)
+        # 출력
+        st.markdown("## ✅ 분석 결과")
+        st.markdown("### 🔥 한 문장 요약")
+        st.markdown(f"**{result_summary}**")
 
-            st.session_state.usage_count += 1
-            st.info(f"남은 사용 가능 횟수: {MAX_USAGE - st.session_state.usage_count}")
+        tab1, tab2 = st.tabs(["⚙️ 다층 욕구 기반 분석", "🧠 전문가용 마케팅 기획안"])
+
+        with tab1:
+            st.subheader("⚙️ 다층 욕구 기반 분석")
+            st.markdown(result_3)
+
+        with tab2:
+            st.subheader("🧠 전문가용 마케팅 기획안")
+            st.markdown(result_4)
+
+        st.success("✅ 분석이 완료되었습니다.")
