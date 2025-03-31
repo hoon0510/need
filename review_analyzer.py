@@ -6,14 +6,16 @@ import graphviz
 openai.api_key = st.secrets["OPENAI_API_KEY"]
 
 
+# 👉 비밀번호 인증 (간단 하드코딩 방식)
 ACCESS_PASSWORD = "need987!@"
 st.markdown("### 🔐 접속 비밀번호 입력")
 password_input = st.text_input("비밀번호", type="password")
 if password_input != ACCESS_PASSWORD:
-st.warning("올바른 비밀번호를 입력해주세요.")
-st.stop()
+    st.warning("올바른 비밀번호를 입력해주세요.")
+    st.stop()
 
 st.success("접속 인증 완료. 분석을 시작하세요.")
+
 # ============================ 함수 정의 ============================
 
 def build_deep_prompt(reviews, goal):
